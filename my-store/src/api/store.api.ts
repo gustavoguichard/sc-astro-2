@@ -1,3 +1,4 @@
+import { makeDomainFunction } from 'domain-functions';
 import { z } from "zod";
 
 const productSchema = z.object({
@@ -28,10 +29,10 @@ export type Purchase = z.infer<typeof purchaseSchema>;
 
 export type Product = z.infer<typeof productSchema>;
 
-export const getPurchases = async (quantity?: number) => {
+export const getPurchases = makeDomainFunction(z.coerce.number().default(10))(async (quantity) => {
   const { purchases } = await fetch(
-    `http://localhost:3001/purchases?quantity=${quantity ?? 10}`
+    `http://localhost:3001/purchases?quantity=${quantity}`
   ).then((res) => res.json());
 
-  return schema.safeParse(purchases);
-};
+  return schema.parse(purchases);
+})
